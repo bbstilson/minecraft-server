@@ -1,0 +1,4 @@
+.terraform
+.terraform.lock.hcl
+# This exposes secrets so probably don't want it in git...
+terraform.tfstate*
