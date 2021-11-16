@@ -8,5 +8,5 @@ resource "cloudflare_record" "minecraft" {
   value   = digitalocean_droplet.mineos.ipv4_address
   type    = "A"
   ttl     = 1 # automatic
-  proxied = true
+  proxied = false
 }

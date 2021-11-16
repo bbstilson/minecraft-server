@@ -9,6 +9,7 @@ export USER_PASSWORD=${MINEOS_PW}
 docker run -td \
   --name=mineos \
   -p 80:8443 \
+  -p 443:8443 \
   -p 25565:25565 \
   -e USER_NAME=$USER_NAME \
   -e USER_PASSWORD=$USER_PASSWORD \

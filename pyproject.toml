@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "minecraft-server"
+version = "0.1.0"
+description = ""
+authors = ["Brandon Stilson <bbstilson@fastmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+click = "8.0.3"
+python-digitalocean = "^1.17.0"
+
+[tool.poetry.dev-dependencies]
+black = "^21.9b0"
+mypy = "^0.910"
+isort = "^5.9.3"
+flakehell = "^0.9.0"
+flake8-length = "^0.2.0"
+
+[tool.black]
+line-length = 80
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.flakehell]
+format = "colored"
+exclude = ["README.md"]
+max_line_length = 80
+# max-complexity = 4
+extended_default_ignore = [] # See: https://lyz-code.github.io/blue-book/devops/flakehell/#issues
+
+[tool.flakehell.plugins]
+pyflakes = ["+*"]
+mccabe = ["+*"]
+# W503 = line break before binary operator
+# E501 = line too long (line length is handled by flake8-length)
+pycodestyle = ["+*", "-W503", "-E501"]
+"flake8-*" = ["+*"]
+
+[tool.mypy]
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
