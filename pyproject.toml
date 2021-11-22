@@ -6,12 +6,12 @@ authors = ["Brandon Stilson <bbstilson@fastmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-click = "8.0.3"
 boto3 = "1.20.7"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
 mypy = "^0.910"
+boto3-stubs = { version = "^1.20.11", extras = ["ec2"] }
 isort = "^5.9.3"
 flakehell = "^0.9.0"
 flake8 = ">=3.8.0,<4.0.0"

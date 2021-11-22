@@ -10,7 +10,6 @@ from request import Request
 from responses import Responses
 from slack import respond
 
-
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -70,32 +69,24 @@ def _handle_state_request(request: Request) -> dict:
     if request.command == Command.STATUS:
         return respond(Responses.instance_state(instance_state), request.quiet)
 
-    action: Optional[Callable[[], None]] = None
-
     if (
         request.command == Command.START
         and instance_state == InstanceState.STOPPED
     ):
-        action = instance.start
+        return _attempt_state_change(instance.start, request)
     elif (
         request.command == Command.STOP
         and instance_state == InstanceState.RUNNING
     ):
-        action = instance.stop
+        return _attempt_state_change(instance.stop, request)
     else:
-        action = None
-
-    return (
-        _attempt_state_change(action, request.user, request.command)
-        if action
-        else respond(
+        return respond(
             Responses.invalid_state_change(request, instance_state),
             request.quiet,
         )
-    )
 
 
-def _attempt_state_change(action: Callable[[], None], request: Request) -> dict:
+def _attempt_state_change(action: Callable, request: Request) -> dict:
     try:
         action()
         return respond(
