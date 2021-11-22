@@ -7,13 +7,14 @@ authors = ["Brandon Stilson <bbstilson@fastmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 click = "8.0.3"
-python-digitalocean = "^1.17.0"
+boto3 = "1.20.7"
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
 mypy = "^0.910"
 isort = "^5.9.3"
 flakehell = "^0.9.0"
+flake8 = ">=3.8.0,<4.0.0"
 flake8-length = "^0.2.0"
 
 [tool.black]
