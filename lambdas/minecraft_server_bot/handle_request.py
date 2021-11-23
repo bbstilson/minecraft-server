@@ -1,6 +1,6 @@
 import argparse
 import logging
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 import boto3
 from command import Command
@@ -13,7 +13,13 @@ from slack import respond
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-parser = argparse.ArgumentParser()
+
+class ArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        raise Exception(f"Could not parse arguments: {message}")
+
+
+parser = ArgumentParser()
 parser.add_argument(
     "command",
     choices=Command,
@@ -26,12 +32,12 @@ def handle_request(params: dict) -> dict:
     request = _parse_request(params)
 
     if not request:
-        return respond(Responses.USAGE.value)
+        return respond(Responses.USAGE.value, True)
 
     logger.info(request)
 
     if request.channel != SLACK_CHANNEL:
-        return respond(Responses.WRONG_CHANNEL.value)
+        return respond(Responses.WRONG_CHANNEL.value, request.quiet)
 
     if request.command == Command.PRAY:
         return respond(Responses.PRAY.value, request.quiet)
@@ -40,25 +46,21 @@ def handle_request(params: dict) -> dict:
 
 
 def _parse_request(params: dict) -> Optional[Request]:
-    user = params["user_name"][0]
-    channel = params["channel_name"][0]
-    text = params.get("text", [""])[0].split(" ")
-
-    command = None
-    quiet = False
+    text: List[str] = [
+        arg for arg in params.get("text", [""])[0].split(" ") if arg
+    ]
 
     try:
         args = parser.parse_args(text)
-        command = args.command
-        quiet = args.quiet
+        return Request(
+            user=params["user_name"][0],
+            channel=params["channel_name"][0],
+            command=args.command,
+            quiet=args.quiet,
+        )
     except Exception as e:
         logger.error(e)
-
-    return (
-        Request(user=user, channel=channel, command=command, quiet=quiet)
-        if command
-        else None
-    )
+        return None
 
 
 def _handle_state_request(request: Request) -> dict:
