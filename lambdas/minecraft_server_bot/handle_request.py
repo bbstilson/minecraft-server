@@ -1,5 +1,7 @@
 import argparse
 import logging
+from time import time
+
 from typing import Callable, List, Optional
 
 import boto3
@@ -28,6 +30,20 @@ parser.add_argument(
 parser.add_argument("-q", "--quiet", action="store_true")
 
 
+def timed(func):
+    # This function shows the execution time of
+    # the function object passed
+    def wrap_func(*args, **kwargs):
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        print(f"Function {func.__name__!r} executed in {(t2-t1):.4f}s")
+        return result
+
+    return wrap_func
+
+
+@timed
 def handle_request(params: dict) -> dict:
     request = _parse_request(params)
 
@@ -45,6 +61,7 @@ def handle_request(params: dict) -> dict:
     return _handle_state_request(request)
 
 
+@timed
 def _parse_request(params: dict) -> Optional[Request]:
     text: List[str] = [
         arg for arg in params.get("text", [""])[0].split(" ") if arg
@@ -63,10 +80,21 @@ def _parse_request(params: dict) -> Optional[Request]:
         return None
 
 
-def _handle_state_request(request: Request) -> dict:
+@timed
+def get_instance():
     ec2 = boto3.resource("ec2")
-    instance = ec2.Instance(INSTANCE_ID)
-    instance_state = InstanceState(instance.state["Name"].lower())
+    return ec2.Instance(INSTANCE_ID)
+
+
+@timed
+def get_instance_state(instance):
+    return InstanceState(instance.state["Name"].lower())
+
+
+@timed
+def _handle_state_request(request: Request) -> dict:
+    instance = get_instance()
+    instance_state = get_instance_state(instance)
 
     if request.command == Command.STATUS:
         return respond(Responses.instance_state(instance_state), request.quiet)
@@ -88,6 +116,7 @@ def _handle_state_request(request: Request) -> dict:
         )
 
 
+@timed
 def _attempt_state_change(action: Callable, request: Request) -> dict:
     try:
         action()

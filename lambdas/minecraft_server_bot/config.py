@@ -1,5 +1,5 @@
 import os
 
 VERIFICATION_TOKEN = os.environ["VERIFICATION_TOKEN"]
-INSTANCE_ID = "i-0f4053b9802682c04"
+INSTANCE_ID = os.environ["INSTANCE_ID"]
 SLACK_CHANNEL = "minecraft"
